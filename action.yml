@@ -1,21 +1,27 @@
-name: 'git-restore-mtime'
+name: "git-restore-mtime"
 description: "Restore file's modified time (timestamp) based on git commits"
-author: 'Pixelcop Research, Inc.'
+author: "Pixelcop Research, Inc."
 inputs:
   working-directory:
     description: "Where to run the action"
     required: false
-    default: '.'
+    default: "."
   args:
     description: "Command line arguments to pass to git-restore-mtime"
     required: false
-    default: ''
+    default: ""
 branding:
-  icon: 'clock'
-  color: 'orange'
+  icon: "clock"
+  color: "orange"
 runs:
   using: "composite"
   steps:
     - shell: bash
+      if: runner.os != 'Windows'
       run: |
-        cd "${{ inputs.working-directory }}" && "$GITHUB_ACTION_PATH"/git-restore-mtime ${{ inputs.args }}
+        cd "${{ inputs.working-directory }}" && python3 "$GITHUB_ACTION_PATH"/git-restore-mtime ${{ inputs.args }}
+    - shell: pwsh
+      if: runner.os == 'Windows'
+      run: |
+        cd "${{ inputs.working-directory }}"
+        python "$env:GITHUB_ACTION_PATH/git-restore-mtime" ${{ inputs.args }}
