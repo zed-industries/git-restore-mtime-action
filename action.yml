@@ -16,6 +16,9 @@ branding:
 runs:
   using: "composite"
   steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
     - shell: bash
       if: runner.os != 'Windows'
       run: |
