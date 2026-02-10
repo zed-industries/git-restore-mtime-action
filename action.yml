@@ -16,9 +16,6 @@ branding:
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-python@v5
-      with:
-        python-version: "3.x"
     - shell: bash
       if: runner.os != 'Windows'
       run: |
@@ -26,5 +23,13 @@ runs:
     - shell: pwsh
       if: runner.os == 'Windows'
       run: |
+        $PythonDir = "$env:RUNNER_TEMP\embeddable-python"
+        if (!(Test-Path "$PythonDir\python.exe")) {
+          $PythonUrl = "https://www.python.org/ftp/python/3.12.7/python-3.12.7-embed-amd64.zip"
+          $ZipPath = "$env:RUNNER_TEMP\python-embed.zip"
+          Invoke-WebRequest -Uri $PythonUrl -OutFile $ZipPath
+          Expand-Archive -Path $ZipPath -DestinationPath $PythonDir -Force
+          Remove-Item $ZipPath
+        }
         cd "${{ inputs.working-directory }}"
-        python "$env:GITHUB_ACTION_PATH/git-restore-mtime" ${{ inputs.args }}
+        & "$PythonDir\python.exe" "$env:GITHUB_ACTION_PATH\git-restore-mtime" ${{ inputs.args }}
